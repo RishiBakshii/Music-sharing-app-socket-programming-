@@ -133,6 +133,6 @@ def setup():
     CLIENT.connect((IP_ADDRESS,PORT))
     musicWindow()
 
-# setup()
-musicWindow()
+setup()
+
 
