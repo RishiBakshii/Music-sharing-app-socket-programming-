@@ -9,12 +9,25 @@ BUFFER_SIZE=4096
 clients={}
 
 
+def handle_client(client,client_name):
+    pass
+
 def accept_connections():
     global SERVER,clients
     
     while True:
         client,addr=SERVER.accept()
-        print(f'Connection established with {client} {addr[0]}')
+        client_name=client.recv(4096).deocde().lower()
+        clients[client_name]={
+            'client':client,
+            'address':addr,
+            'connected_with':'',
+            'file_name':'',
+            'file_size':BUFFER_SIZE
+        }
+        print(f'Connection established with {client_name} {addr[0]}')
+
+        threading.Thread(target=handle_client,args=(client,client_name)).start()
 
 def setup():
     global PORT,IP_ADDRESS,SERVER
