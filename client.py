@@ -88,8 +88,9 @@ def musicWindow():
     infoLabel=Label(window,fg='blue',text='Select a Song',font=SECONDARY_FONT)
     infoLabel.place(relx=.5,rely=.8,anchor=CENTER)
 
-    for count,songname in enumerate(os.listdir('music_files')):
-        listbox.insert(count,songname)
+    for count,files in enumerate(os.listdir('music_files')):
+        only_music_files=os.fsdecode(files)
+        listbox.insert(count,only_music_files)
 
 
     # bindings -->
@@ -125,12 +126,21 @@ def musicWindow():
 
     window.mainloop()
 
-
+def recv_msg():
+    global CLIENT
+    while True:
+        try:
+            msg=CLIENT.recv(2048).decode("utf-8")
+            if msg:
+                print(msg)
+        except:
+            pass
 def setup():
     global CLIENT,IP_ADDRESS,PORT,BUFFER_SIZE
 
     CLIENT=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
     CLIENT.connect((IP_ADDRESS,PORT))
+    threading.Thread(target=recv_msg).start()
     musicWindow()
 
 setup()

@@ -10,7 +10,7 @@ clients={}
 
 
 def handle_client(client,client_name):
-    pass
+    client.send("welcome to the server you have connected succesfully".encode("utf-8"))
 
 def accept_connections():
     global SERVER,clients
