@@ -8,6 +8,10 @@ import pygame
 from pygame import mixer
 import os
 import time
+import ftplib
+from ftplib import FTP
+import ntpath
+from pathlib import Path
 
 SONG_COUNTER=0
 IP_ADDRESS='127.0.0.1'
@@ -20,6 +24,7 @@ PRIMARY_BG='LightSkyBlue'
 SECONDARY_BG='SkyBlue'
 W_WIDTH=600
 W_HEIGHT=600
+
 song_selected=None
 listbox=None
 infoLabel=None
@@ -27,6 +32,31 @@ mixer.init()
 PAUSED=False
 pause_resume_Button=None
 playButton=None
+filepathLabel=None
+
+def browse_files():
+    global listbox,filePathLabel
+
+    try:
+        filename=filedialog.askopenfilename()
+        
+        HOSTNAME='127.0.0.1'
+        USERNAME='lftpd'
+        PASSWORD='lftpd'
+
+        ftp_server=FTP(HOSTNAME,USERNAME,PASSWORD)
+        ftp_server.encoding='utf-8'
+        ftp_server.cwd('shared-files')
+        fname=ntpath.basename(filename)
+
+        with open(filename,'rb') as file:
+            ftp_server.storbinary(f'STOR {fname}',file)
+        ftp_server.dir()
+        ftp_server.quit()
+    
+    except FileNotFoundError:
+        print('Cancel Button Pressed')
+
 
 def play():
     global song_selected,listbox,infoLabel
@@ -38,7 +68,6 @@ def play():
     else:
         infoLabel.configure(text='Please select a song')
 
-# mam this my custom function this is not included in the project
 def pause_resume():
     global song_selected,infoLabel,PAUSED,pause_resume_Button
 

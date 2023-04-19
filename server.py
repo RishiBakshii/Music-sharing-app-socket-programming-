@@ -1,6 +1,8 @@
 import socket
 import threading
-
+from pyftpdlib.authorizers import DummyAuthorizer
+from pyftpdlib.handlers import FTPHandler
+from pyftpdlib.servers import FTPServer
 
 SERVER=None
 IP_ADDRESS='127.0.0.1'
@@ -8,6 +10,20 @@ PORT=8050
 BUFFER_SIZE=4096
 clients={}
 
+def ftp():
+    global IP_ADDRESS
+
+    authorizer=DummyAuthorizer()
+    authorizer.add_user("lftpd","lftpd",'.',perm='elradfmw')
+
+    handler=FTPHandler()
+    handler.authorizer=authorizer
+
+    ftpserver=FTPServer((IP_ADDRESS,21),handler)
+    ftpserver.serve_forever()
+
+ftp_thread=threading.Thread(target=ftp)
+ftp_thread.start()
 
 def handle_client(client,client_name):
     client.send("welcome to the server you have connected succesfully".encode("utf-8"))
