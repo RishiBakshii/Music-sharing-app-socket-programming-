@@ -3,6 +3,7 @@ import threading
 from pyftpdlib.authorizers import DummyAuthorizer
 from pyftpdlib.handlers import FTPHandler
 from pyftpdlib.servers import FTPServer
+import os
 
 SERVER=None
 IP_ADDRESS='127.0.0.1'
@@ -22,8 +23,8 @@ def ftp():
     ftpserver=FTPServer((IP_ADDRESS,21),handler)
     ftpserver.serve_forever()
 
-ftp_thread=threading.Thread(target=ftp)
-ftp_thread.start()
+    ftp_thread=threading.Thread(target=ftp)
+    ftp_thread.start()
 
 def handle_client(client,client_name):
     client.send("welcome to the server you have connected succesfully".encode("utf-8"))
@@ -55,6 +56,14 @@ def setup():
     print("Server is waiting for incoming connections\n\n")
 
     accept_connections()
+
+is_dir_exists=os.path.isdir('shared_files')
+print(is_dir_exists)
+if(not is_dir_exists):
+    os.makedirs('shared_files')
+
+
+
 
 threading.Thread(target=setup).start()
 

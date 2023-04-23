@@ -35,7 +35,7 @@ playButton=None
 filepathLabel=None
 
 def browse_files():
-    global listbox,filePathLabel
+    global listbox,filePathLabel,SONG_COUNTER,listbox
 
     try:
         filename=filedialog.askopenfilename()
@@ -53,10 +53,42 @@ def browse_files():
             ftp_server.storbinary(f'STOR {fname}',file)
         ftp_server.dir()
         ftp_server.quit()
+
+        listbox.insert(SONG_COUNTER,fname)
+        SONG_COUNTER+=1
     
     except FileNotFoundError:
         print('Cancel Button Pressed')
 
+def download():
+    global listbox,infoLabel
+
+    song_to_download=listbox.get(ANCHOR)
+    infoLabel.configure(text=f'Downloading {song_to_download}')
+
+    HOSTNAME='127.0.0.1'
+    USERNAME='lftpd'
+    PASSWORD='lftpd'
+    home=str(Path.home())
+    download_path=home+"/Downloads"
+
+    ftp_server=ftplib.FTP(HOSTNAME,USERNAME,PASSWORD)
+    ftp_server.encoding='utf-8'
+    ftp_server.cwd('shared-files')
+    local_filename=os.path.join(download_path,song_to_download)
+    file=open(local_filename,'wb')
+
+    ftp_server.retrbinary('RETR '+song_to_download,file.write)
+    ftp_server.dir()
+    file.close()
+    ftp_server.quit()
+    infoLabel.configure(text='Download Complete')
+    time.sleep(1)
+
+    if(song_selected!=''):
+        infoLabel.configure(text='Now Playing'+song_selected)
+    else:
+        infoLabel.configure(text='')
 
 def play():
     global song_selected,listbox,infoLabel
@@ -117,9 +149,9 @@ def musicWindow():
     infoLabel=Label(window,fg='blue',text='Select a Song',font=SECONDARY_FONT)
     infoLabel.place(relx=.5,rely=.8,anchor=CENTER)
 
-    for count,files in enumerate(os.listdir('music_files')):
-        only_music_files=os.fsdecode(files)
-        listbox.insert(count,only_music_files)
+    # for count,files in enumerate(os.listdir('music_files')):
+    #     only_music_files=os.fsdecode(files)
+    #     listbox.insert(count,only_music_files)
 
 
     # bindings -->
